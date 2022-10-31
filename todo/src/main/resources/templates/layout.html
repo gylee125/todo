@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="_csrf" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" type="text/css" th:href="@{/bootstrap.min.css}">
+  <!-- CSS -->
+  <link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@700&display=swap" rel="stylesheet">
+  <!-- MDB -->
+  <script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/5.0.0/mdb.min.js">
+  </script>
+
+</head>
+<body>
+<!-- 네비게이션바 -->
+<nav th:replace="navbar :: navbarFragment"></nav>
+<section class="gradient-custom">
+  <div class="container py-5 h-100">
+    <!-- 기본 템플릿 안에 삽입될 내용 Start -->
+    <th:block layout:fragment="content"></th:block>
+    <!-- 기본 템플릿 안에 삽입될 내용 End -->
+  </div>
+</section>
+
+<!-- Bootstrap JS -->
+<script th:src="@{/bootstrap.min.js}"></script>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- 자바스크립트 Start -->
+<th:block layout:fragment="script"></th:block>
+<!-- 자바스크립트 End -->
+
+</body>
+</html>

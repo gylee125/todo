@@ -1,0 +1,350 @@
+<html layout:decorate="~{layout}">
+
+<th:block layout:fragment="content" class="container my-3">
+
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-xl-10">
+
+        <div class="card">
+
+          <div class="card-body p-5">
+            <div style="margin:5px" class="login-name">
+              [[${loginMember.name}]] 님
+            </div>
+            <form th:action="@{/todo/}" class="d-flex justify-content-center align-items-center mb-4" method="post">
+              <!--<label class="form-label" for="form2">[[${loginMember.name}]] 님</label>-->
+              <div class="form-outline flex-fill">
+                <input type="text" id="form2" class="form-control" placeholder="New Purpose " />
+                <input type="hidden" id="formCompleted" class="form-control" value="false"/>
+              </div>
+              <button type="button" class="btn btn-info ms-2 todoRegister">Add</button>
+            </form>
+
+            <!-- Tabs navs -->
+            <ul class="nav nav-tabs mb-4 pb-2" id="ex1" role="tablist">
+              <li class="nav-item" role="presentation">
+                <a class="nav-link active all-tab" id="ex1-tab-1" data-mdb-toggle="tab" href="#ex1-tabs-1" role="tab"
+                   aria-controls="ex1-tabs-1" aria-selected="true">All</a>
+              </li>
+              <li class="nav-item" role="presentation">
+                <a class="nav-link active-tab" id="ex1-tab-2" data-mdb-toggle="tab" href="#ex1-tabs-2" role="tab"
+                   aria-controls="ex1-tabs-2" aria-selected="false">Active</a>
+              </li>
+              <li class="nav-item" role="presentation">
+                <a class="nav-link complete-tab" id="ex1-tab-3" data-mdb-toggle="tab" href="#ex1-tabs-3" role="tab"
+                   aria-controls="ex1-tabs-3" aria-selected="false">Completed</a>
+              </li>
+            </ul>
+            <!-- Tabs navs -->
+
+            <!-- Tabs content -->
+            <div class="tab-content" id="ex1-content">
+              <div class="tab-pane fade show active" id="ex1-tabs-1" role="tabpanel"
+                   aria-labelledby="ex1-tab-1">
+                <ul class="list-group mb-0 todoList">
+                </ul>
+              </div>
+              <div class="tab-pane fade" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
+                <ul class="list-group mb-0 todoList2">
+
+                </ul>
+              </div>
+              <div class="tab-pane fade" id="ex1-tabs-3" role="tabpanel" aria-labelledby="ex1-tab-3">
+                <ul class="list-group mb-0 todoList3">
+
+                </ul>
+              </div>
+            </div>
+            <!-- Tabs content -->
+
+
+            <!-- Modal -->
+            <div class="modal" tabindex="-1" role="dialog">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">About To-do</h5>
+
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <input class="form-control"  type="text" name="todoContent" placeholder="To-do Text...">
+                      <input type="hidden" name="tno" >
+                    </div>
+                    <div class="form-group">
+                      <input class="form-control" type="checkbox" name="todoCompleted" style="display:none" >
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger todoRemove">Remove</button>
+                    <button type="button" class="btn btn-warning todoModify">Modify</button>
+                    <button type="button" class="btn btn-primary todoSave">Save</button>
+                    <button type="button" class="btn btn-outline-secondary todoClose" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+</th:block>
+
+<th:block layout:fragment="script">
+  <script th:inline="javascript">
+
+    $(document).ready(function() {
+
+      //ajax 처리를 위한 security csrf 토큰 설정
+      var header = $("meta[name='_csrf_header']").attr('content');
+      var token = $("meta[name='_csrf']").attr('content');
+
+      var mno = [[${loginMember.mno}]];
+      loadJSONData();
+
+      // All, Active, Completed (todo 리스트 출력될 영역)
+      var listGroup  = $(".todoList");
+      var listGroup2  = $(".todoList2");
+      var listGroup3  = $(".todoList3");
+
+
+      // 리스트 출력
+      $(".all-tab").click(function(){
+        loadCompleteJSONData();
+      });
+
+
+      function loadJSONData() {
+        $.getJSON('/todo/list/'+mno, function(arr){
+
+          console.log(arr);
+
+          var str ="";
+
+          $.each(arr, function(idx, todo){
+            console.log(todo);
+
+            str += '                  <li class="list-group-item d-flex align-items-center border-0 mb-2 rounded" data-tno="'+todo.tno+'"style="background-color: #f4f6f7;">';
+            if(todo.completed) {
+            str += '                    <input class="form-check-input me-2 list-completed" type="checkbox" value="'+todo.completed+'" aria-label="..." checked />';
+            str += '                    <div class="list-content" style="text-decoration:line-through">'+todo.content+'</div>';
+            } else {
+            str += '                    <input class="form-check-input me-2 list-completed" type="checkbox" value="'+todo.completed+'" aria-label="..." />';
+            str += '                    <div class="list-content" >'+todo.content+'</div>';
+            }
+            str += '                  </li>';
+          })
+
+          listGroup.html(str);
+
+        });
+      }
+
+      $(".active-tab").click(function(){
+        loadActiveJSONData();
+      });
+
+      function loadActiveJSONData() {
+        $.getJSON('/todo/list/'+mno+'/active', function(arr){
+
+          console.log(arr);
+
+          var str ="";
+
+          $.each(arr, function(idx, todo){
+            console.log(todo);
+            str += '                  <li class="list-group-item d-flex align-items-center border-0 mb-2 rounded" data-tno="'+todo.tno+'"style="background-color: #f4f6f7;">';
+            str += '                    <input class="form-check-input me-2 list-completed" type="checkbox" value="'+todo.completed+'" aria-label="..." />';
+            str += '                    <div class="list-content" >'+todo.content+'</div>';
+            str += '                  </li>';
+          })
+
+          listGroup2.html(str);
+
+        });
+      }
+
+      $(".complete-tab").click(function(){
+        loadCompleteJSONData();
+      });
+
+      function loadCompleteJSONData() {
+        $.getJSON('/todo/list/'+mno+'/completed', function(arr){
+
+          console.log(arr);
+
+          var str ="";
+
+          $.each(arr, function(idx, todo){
+            console.log(todo);
+            str += '                  <li class="list-group-item d-flex align-items-center border-0 mb-2 rounded" data-tno="'+todo.tno+'"style="background-color: #f4f6f7;">';
+            str += '                    <input class="form-check-input me-2 list-completed" type="checkbox" value="'+todo.completed+'" aria-label="..." checked/>';
+            str += '                    <div class="list-content" style="text-decoration:line-through">'+todo.content+'</div>';
+            str += '                  </li>';
+          })
+
+          listGroup3.html(str);
+
+        });
+      }
+
+
+      //모달 창
+      var modal = $('.modal');
+
+
+      // todo 등록
+      $(".todoRegister").click(function() {
+
+        var todo = {
+          content: $('input[id="form2"]').val(),
+          mno: mno,
+          completed: $('input[id="formCompleted"]').val()
+        }
+
+        console.log(todo);
+        $.ajax({
+          url: '/todo/',
+          method: 'post',
+          beforeSend: function(xhr){
+              xhr.setRequestHeader(header, token);
+          },
+          data:  JSON.stringify(todo),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          success: function(data){
+            console.log(data);
+
+            var newTno = parseInt(data);
+
+            alert("등록되었습니다.")
+            modal.modal('hide');
+            $('input[id="form2"]').val('');
+              loadJSONData();
+          }
+        })
+      });
+
+
+      // 완료처리(수정) 체크박스 체크 누르면 completed 수정
+      $('.list-group').on("click", ".list-completed", function(){
+        var tno = $(this).parent().data("tno");
+
+        var todo = {
+          tno: tno,
+          mno: mno,
+          content: $(this).parent().find('.list-content').html(),
+          completed: !$(this).parent().find('list-completed').val()
+        }
+
+        console.log(todo);
+        $.ajax({
+          url: '/todo/' + tno + '/completeSwitch',
+          method: 'put',
+          beforeSend: function(xhr){
+              xhr.setRequestHeader(header, token);
+          },
+          data:  JSON.stringify(todo),
+          contentType: 'application/json; charset=utf-8',
+          success: function(result){
+
+            console.log("RESULT: " + result);
+
+            if(result ==='success'){
+              alert("Complete this! Good Job!");
+              modal.modal('hide');
+              loadJSONData();
+              loadActiveJSONData();
+              loadCompleteJSONData();
+            }
+          }
+        });
+      });
+
+      // 해당 todo 내용 누르면 모달창 열기
+      $('.list-group').on("click", ".list-content", function(){
+        var listitem = $(this).parent();
+        var tno = listitem.data("tno");
+
+        $("input[name='todoContent']").val( listitem.find('.list-content').html());
+        $("input[name='tno']").val(tno);
+        $("input[name='todoCompleted']").val(listitem.find('.list-completed').val());
+
+        $(".modal-footer .btn").hide();
+        $(".todoRemove, .todoModify, .todoClose").show();
+
+        modal.modal('show');
+
+      });
+
+
+      // todo삭제
+      $(".todoRemove").on("click", function(){
+
+        var tno = $("input[name='tno']").val(); //모달 창에 번호 hidden처리되어 있음
+
+        $.ajax({
+          url: '/todo/' + tno,
+          method: 'delete',
+          beforeSend: function(xhr){
+              xhr.setRequestHeader(header, token);
+          },
+          success: function(result){
+            console.log("result: " + result);
+            if(result ==='success'){
+              alert("삭제되었습니다");
+              modal.modal('hide');
+              loadJSONData();
+            }
+          }
+        })
+      });
+
+      // todo 내용 수정
+      $(".todoModify").click(function() {
+
+        var tno = $("input[name='tno']").val();
+
+        var todo = {
+          tno: tno,
+          mno: mno,
+          content: $('input[name="todoContent"]').val(),
+          completed: $('input[name="todoCompleted"]').val()
+        }
+
+        console.log(todo);
+        $.ajax({
+          url: '/todo/' + tno,
+          method: 'put',
+          beforeSend: function(xhr){
+              xhr.setRequestHeader(header, token);
+          },
+          data:  JSON.stringify(todo),
+          contentType: 'application/json; charset=utf-8',
+          success: function(result){
+
+            console.log("RESULT: " + result);
+
+            if(result ==='success'){
+              alert("내용이 수정되었습니다");
+              modal.modal('hide');
+              loadJSONData();
+            }
+          }
+        });
+      });
+
+      // 모달창 닫기
+      $(".todoClose").click(function() {
+        modal.modal('hide');
+        loadJSONData();
+      });
+
+    });
+  </script>
+</th:block>
+</html>
